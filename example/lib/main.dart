@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
-import 'package:flutter_system_ringtones/flutter_system_ringtones.dart';
+import 'package:flutter_system_ringtones_advanced/flutter_system_ringtones_advanced.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -24,20 +24,16 @@ class _MyAppState extends State<MyApp> {
     getRingtones();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> getRingtones() async {
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
     try {
       final temp = await FlutterSystemRingtones.getRingtoneSounds();
+      if (!mounted) return;
       setState(() {
         ringtones = temp;
       });
     } on PlatformException {
-      debugPrint('Failed to get platform version.');
+      debugPrint('Failed to load ringtones.');
     }
-
-    if (!mounted) return;
   }
 
   @override
@@ -54,9 +50,6 @@ class _MyAppState extends State<MyApp> {
               return ListTile(
                 title: Text(ringtones[index].title),
                 subtitle: Text(ringtones[index].uri),
-                onTap: () {
-                  // _flutterSystemRingtonesPlugin.playRingtone(ringtones[index]);
-                },
               );
             },
           ),
