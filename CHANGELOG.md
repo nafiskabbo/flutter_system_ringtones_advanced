@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Patch release: version alignment on pub.dev and documentation
+
 ## 2.0.0
 
 - **Android-only:** removes iOS plugin implementation (Apple provides no supported public API to list system ringtones; see README)

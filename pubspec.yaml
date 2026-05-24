@@ -1,6 +1,6 @@
 name: flutter_system_ringtones_advanced
 description: Retrieve system ringtones, alarms, and notification sounds on Android using native APIs.
-version: 2.0.0
+version: 2.0.1
 homepage: https://github.com/nafiskabbo/flutter_system_ringtones_advanced
 repository: https://github.com/nafiskabbo/flutter_system_ringtones_advanced
 issue_tracker: https://github.com/nafiskabbo/flutter_system_ringtones_advanced/issues
