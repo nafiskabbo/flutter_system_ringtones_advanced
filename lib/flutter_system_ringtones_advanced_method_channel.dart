@@ -4,7 +4,12 @@ import 'package:flutter_system_ringtones_advanced/src/ringtone.dart';
 
 import 'flutter_system_ringtones_advanced_platform_interface.dart';
 
+/// Android implementation of [FlutterSystemRingtonesPlatform] via method channel.
 class MethodChannelFlutterSystemRingtones extends FlutterSystemRingtonesPlatform {
+  /// Creates the default method-channel implementation.
+  MethodChannelFlutterSystemRingtones();
+
+  /// Channel used to communicate with `FlutterSystemRingtonesPlugin` on Android.
   @visibleForTesting
   final methodChannel = const MethodChannel('flutter_system_ringtones');
 
@@ -28,6 +33,9 @@ class MethodChannelFlutterSystemRingtones extends FlutterSystemRingtonesPlatform
     return _parseRingtoneList(raw, method);
   }
 
+  /// Parses a native method-channel payload into [Ringtone] instances.
+  ///
+  /// Throws [PlatformException] when [raw] is not a `List` of maps.
   @visibleForTesting
   List<Ringtone>? parseRingtoneList(dynamic raw, [String method = 'unknown']) {
     return _parseRingtoneList(raw, method);

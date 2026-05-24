@@ -1,3 +1,8 @@
+## 2.0.2
+
+- Add dartdoc for public API (pub.dev documentation score)
+- Enable `public_member_api_docs` lint
+
 ## 2.0.1
 
 - Patch release: version alignment on pub.dev and documentation

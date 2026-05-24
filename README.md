@@ -28,7 +28,7 @@ Scanning private system sound directories is fragile, simulator-incompatible, an
 
 ```yaml
 dependencies:
-  flutter_system_ringtones_advanced: ^2.0.1
+  flutter_system_ringtones_advanced: ^2.0.2
 ```
 
 ```bash
@@ -39,7 +39,7 @@ flutter pub get
 
 ```yaml
 dependencies:
-  flutter_system_ringtones_advanced: ^2.0.1
+  flutter_system_ringtones_advanced: ^2.0.2
 ```
 
 ```dart
