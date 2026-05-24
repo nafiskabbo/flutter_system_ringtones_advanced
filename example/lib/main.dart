@@ -17,6 +17,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   List<Ringtone> ringtones = [];
+  String? errorMessage;
 
   @override
   void initState() {
@@ -30,9 +31,13 @@ class _MyAppState extends State<MyApp> {
       if (!mounted) return;
       setState(() {
         ringtones = temp;
+        errorMessage = null;
       });
-    } on PlatformException {
-      debugPrint('Failed to load ringtones.');
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        errorMessage = e.message;
+      });
     }
   }
 
@@ -43,16 +48,36 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: ListView.builder(
-            itemCount: ringtones.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Text(ringtones[index].title),
-                subtitle: Text(ringtones[index].uri),
-              );
-            },
-          ),
+        body: Column(
+          children: [
+            if (!FlutterSystemRingtones.isSupported)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'System ringtone listing is only supported on Android. '
+                  'On iOS this example shows an empty list.',
+                ),
+              ),
+            if (errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  errorMessage!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: ringtones.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    title: Text(ringtones[index].title),
+                    subtitle: Text(ringtones[index].uri),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

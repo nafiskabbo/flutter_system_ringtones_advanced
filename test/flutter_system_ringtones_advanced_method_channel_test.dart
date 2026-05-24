@@ -20,6 +20,8 @@ void main() {
               'uri': 'content://media/internal/audio/media/1',
             },
           ];
+        case 'getAlarms':
+          return <dynamic>[];
         default:
           return null;
       }
@@ -39,6 +41,37 @@ void main() {
     expect(
       ringtones.first.uri,
       'content://media/internal/audio/media/1',
+    );
+  });
+
+  test('getAlarms returns empty list from native', () async {
+    final alarms = await platform.getAlarms();
+    expect(alarms, isEmpty);
+  });
+
+  test('parseRingtoneList rejects non-list native responses', () {
+    expect(
+      () => platform.parseRingtoneList('iOS 17.0', 'getNotifications'),
+      throwsA(
+        isA<PlatformException>().having(
+          (e) => e.code,
+          'code',
+          'invalid_response',
+        ),
+      ),
+    );
+  });
+
+  test('parseRingtoneList rejects map entries', () {
+    expect(
+      () => platform.parseRingtoneList(['not-a-map'], 'getRingtones'),
+      throwsA(
+        isA<PlatformException>().having(
+          (e) => e.code,
+          'code',
+          'invalid_response',
+        ),
+      ),
     );
   });
 }

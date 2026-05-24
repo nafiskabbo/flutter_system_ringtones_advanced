@@ -1,3 +1,12 @@
+## 2.0.0
+
+- **Android-only:** removes iOS plugin implementation (Apple provides no supported public API to list system ringtones; see README)
+- **Fix:** reload ringtone/alarm/notification lists on each request instead of caching at engine attach (fresh data after user changes system sounds)
+- **Fix:** handle empty `RingtoneManager` cursors without crashing
+- **Fix:** harden Dart parsing when native returns a non-`List` (addresses upstream `String` vs `List` cast crash on iOS)
+- **API:** `FlutterSystemRingtones.isSupported` is `true` only on Android; other platforms return `[]` without calling the method channel
+- **Docs:** add guidance for playing sounds via `content://` URIs ([#3](https://github.com/nafiskabbo/flutter_system_ringtones_advanced/issues/3))
+
 ## 1.0.0
 
 - **Package renamed** to [`flutter_system_ringtones_advanced`](https://pub.dev/packages/flutter_system_ringtones_advanced) for independent publication on pub.dev

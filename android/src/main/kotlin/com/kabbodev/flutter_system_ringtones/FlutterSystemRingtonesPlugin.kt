@@ -12,80 +12,83 @@ import io.flutter.plugin.common.MethodChannel.Result
 
 class FlutterSystemRingtonesPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var channel: MethodChannel
-
-    private val ringtones = arrayListOf<HashMap<String, Any>>()
-    private val alarms = arrayListOf<HashMap<String, Any>>()
-    private val notifications = arrayListOf<HashMap<String, Any>>()
+    private lateinit var appContext: Context
 
     override fun onAttachedToEngine(
         @NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding,
     ) {
+        appContext = flutterPluginBinding.applicationContext
         channel = MethodChannel(
             flutterPluginBinding.binaryMessenger,
             "flutter_system_ringtones",
         )
         channel.setMethodCallHandler(this)
-        val context = flutterPluginBinding.applicationContext
-        loadRingtones(context)
-        loadAlarms(context)
-        loadNotifications(context)
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        when (call.method) {
-            "getRingtones" -> result.success(ringtones)
-            "getNotifications" -> result.success(notifications)
-            "getAlarms" -> result.success(alarms)
-            else -> result.notImplemented()
+        try {
+            when (call.method) {
+                "getRingtones" -> {
+                    val list = arrayListOf<HashMap<String, Any>>()
+                    loadSounds(appContext, RingtoneManager.TYPE_RINGTONE, list)
+                    result.success(list)
+                }
+                "getNotifications" -> {
+                    val list = arrayListOf<HashMap<String, Any>>()
+                    loadSounds(appContext, RingtoneManager.TYPE_NOTIFICATION, list)
+                    result.success(list)
+                }
+                "getAlarms" -> {
+                    val list = arrayListOf<HashMap<String, Any>>()
+                    loadSounds(appContext, RingtoneManager.TYPE_ALARM, list)
+                    result.success(list)
+                }
+                else -> result.notImplemented()
+            }
+        } catch (e: Exception) {
+            result.error("ringtone_error", e.message, null)
         }
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        clear()
         channel.setMethodCallHandler(null)
     }
 
-    private fun loadRingtones(context: Context) {
+    private fun loadSounds(
+        context: Context,
+        type: Int,
+        list: ArrayList<HashMap<String, Any>>,
+    ) {
         val ringtoneManager = RingtoneManager(context)
-        ringtoneManager.setType(RingtoneManager.TYPE_RINGTONE)
-        load(ringtoneManager.cursor, ringtones)
+        ringtoneManager.setType(type)
+        load(ringtoneManager.cursor, list)
     }
 
-    private fun loadAlarms(context: Context) {
-        val ringtoneManager = RingtoneManager(context)
-        ringtoneManager.setType(RingtoneManager.TYPE_ALARM)
-        load(ringtoneManager.cursor, alarms)
-    }
-
-    private fun loadNotifications(context: Context) {
-        val ringtoneManager = RingtoneManager(context)
-        ringtoneManager.setType(RingtoneManager.TYPE_NOTIFICATION)
-        load(ringtoneManager.cursor, notifications)
-    }
-
-    private fun load(cursor: Cursor, list: ArrayList<HashMap<String, Any>>) {
-        if (!cursor.isFirst) {
-            cursor.moveToFirst()
+    private fun load(cursor: Cursor?, list: ArrayList<HashMap<String, Any>>) {
+        if (cursor == null) {
+            return
         }
-        do {
-            val itemTitle = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
-            val itemId = cursor.getString(RingtoneManager.ID_COLUMN_INDEX)
-            val itemUri =
-                cursor.getString(RingtoneManager.URI_COLUMN_INDEX) + "/" + itemId
-            list.add(
-                hashMapOf(
-                    "id" to itemId,
-                    "title" to itemTitle,
-                    "uri" to itemUri,
-                ),
-            )
-        } while (cursor.moveToNext())
-        cursor.close()
-    }
-
-    private fun clear() {
-        ringtones.clear()
-        alarms.clear()
-        notifications.clear()
+        cursor.use {
+            if (it.count == 0) {
+                return
+            }
+            val titleIndex = RingtoneManager.TITLE_COLUMN_INDEX
+            val idIndex = RingtoneManager.ID_COLUMN_INDEX
+            val uriIndex = RingtoneManager.URI_COLUMN_INDEX
+            if (it.moveToFirst()) {
+                do {
+                    val itemTitle = it.getString(titleIndex) ?: continue
+                    val itemId = it.getString(idIndex) ?: continue
+                    val uriBase = it.getString(uriIndex) ?: continue
+                    list.add(
+                        hashMapOf(
+                            "id" to itemId,
+                            "title" to itemTitle,
+                            "uri" to "$uriBase/$itemId",
+                        ),
+                    )
+                } while (it.moveToNext())
+            }
+        }
     }
 }
